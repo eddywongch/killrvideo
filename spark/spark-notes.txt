@@ -47,11 +47,11 @@ g.find("(a)-[e]->(b)").show(5)
 g.find("(movie)-[e]->(person)").filter("""person.name = 'Robert De Niro' AND movie.year >= 1970 AND movie.year < 1980""").select("movie.title","movie.year").show()
 
 // Saves to C* table De Niro ratings, group them by rating, aggregate them and store in a new table in Cassandra
-g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Robert De Niro'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "count").write.cassandraFormat("de_niro_ratings", "KillrVideo").save
+g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Robert De Niro'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "count").write.cassandraFormat("de_niro_ratings", "killrvdeo").save
 
 // Spark (ANSI SQL)
-spark.sql("""SELECT * FROM KillrVideo.de_niro_ratings""").show()
-spark.sql("""SELECT * FROM KillrVideo.genre""").show()
+spark.sql("""SELECT * FROM killrvideo.de_niro_ratings""").show()
+spark.sql("""SELECT * FROM killrvideo.genre""").show()
 
 // Find actor of the movie Wolf of Wall St, list actor name
 g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").select("person.name").show()
@@ -70,9 +70,9 @@ g.find("""(movie)-[e]->(person)""").filter("""movie.title = 'The Wolf of Wall St
 
 
 # Combined query
-g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Al Pacino' AND actor.`~label` = 'actor' AND rated.`~label` = 'rated'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "al_pacino").join( spark.sql("""SELECT rating, count AS de_niro FROM KillrVideo.de_niro_ratings"""),Seq("rating"), "full_outer").orderBy("rating").show()
+g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Al Pacino' AND actor.`~label` = 'actor' AND rated.`~label` = 'rated'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "al_pacino").join( spark.sql("""SELECT rating, count AS de_niro FROM killrvideo.de_niro_ratings"""),Seq("rating"), "full_outer").orderBy("rating").show()
 
-.write.cassandraFormat("de_niro_ratings", "KillrVideo").save
+.write.cassandraFormat("de_niro_ratings", "killrvideo").save
 
 # Actors in Romeo + Juliet
 g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'Romeo + Juliet' AND actor.`~label` = 'actor' """).select("person.name").show()
@@ -87,13 +87,13 @@ val movies = spark.read.option("header", "true").csv("file:///var/lib/graph/movi
 
 
 # Explaing a query, profiles the query of what operations it is made of
-spark.sql("""SELECT * FROM KillrVideo.genre""").show()
+spark.sql("""SELECT * FROM killrvideo.genre""").show()
 
 g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").select("person.name").explain
 
 
 # PageRank
-val g = spark.dseGraph("KillrVideo")
+val g = spark.dseGraph("killrvideo")
 g.V().pageRank.show()
 
 # GraphFrame Reserved Column Names
