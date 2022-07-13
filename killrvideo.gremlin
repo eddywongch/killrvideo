@@ -1,0 +1,90 @@
+# killrvideo.gremlin
+
+system.graph('killrvideo').create()
+
+
+schema.vertexLabel('genre').drop()
+schema.vertexLabel('person').drop()
+schema.vertexLabel('user').drop()
+schema.vertexLabel('movie').drop()
+
+schema.vertexLabel('de_niro_ratings').drop()
+
+
+// genre
+schema.vertexLabel('genre').
+    ifNotExists().
+    partitionBy('genreId', Text).
+    property('name', Text).
+    create()
+    
+// person
+schema.vertexLabel('person').
+    ifNotExists().
+    partitionBy('personId', Text).
+    property('name', Text).
+    create()
+
+// user
+schema.vertexLabel('user').
+    ifNotExists().
+    partitionBy('userId', Text).
+    property('age', Int).
+    property('gender', Text).
+    create()
+
+// movie
+schema.vertexLabel('movie').
+    ifNotExists().
+    partitionBy('movieId', Text).
+    property('title', Text).
+    property('year', Int).
+    property('duration', Int).
+    property('country', Text).
+    create()
+    
+// de_niro_ratings
+schema.vertexLabel('de_niro_ratings').
+    ifNotExists().
+    partitionBy('rating', Int).
+    partitionBy('count', Int).
+    create()
+
+
+# Edges
+
+// knows 
+schema.edgeLabel('knows').
+    ifNotExists().
+    from('user').to('user').
+    create()
+
+
+// rated 
+schema.edgeLabel('rated').
+    ifNotExists().
+    from('user').to('movie').
+    property('rating', Int).
+    create()
+
+// belongsTo 
+schema.edgeLabel('belongsTo').
+    ifNotExists().
+    from('movie').to('genre').
+    create()
+
+// actor
+schema.edgeLabel('actor').
+    ifNotExists().
+    from('movie').to('person').
+    create()
+
+
+// director
+schema.edgeLabel('director').
+    ifNotExists().
+    from('movie').to('person').
+    create()
+    
+
+
