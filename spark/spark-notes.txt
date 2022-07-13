@@ -1,0 +1,106 @@
+
+Graph Analytics
+03/07/22
+
+# From Unix
+> dse gremlin-console
+
+# From gremlin console of DS Studio
+# Online Gremlin 
+:remote config alias g killrvideo.g
+
+# OLAP Gremlin
+:remote config alias g killrvideo.a
+
+
+Spark UI
+http://[spark ip address]:7080
+
+
+Spark CLI
+> dse spark
+
+
+# Snapshot
+Copies a subgraph
+
+snapshot()
+
+# Config Settings
+g.graph.configuration.setProperty()
+
+g.graph.configuration.setProperty("spark.cores.max", 12)
+
+
+# DS Studio
+g.io("/tmp/killrvideo.json").read()
+
+
+# dse Spark Graphframe initial connection
+val g = spark.dseGraph("killrvideo")
+
+
+// Motif based querying in Spark
+g.find("(a)-[e]->(b)").show(5)
+
+
+g.find("(movie)-[e]->(person)").filter("""person.name = 'Robert De Niro' AND movie.year >= 1970 AND movie.year < 1980""").select("movie.title","movie.year").show()
+
+// Saves to C* table De Niro ratings, group them by rating, aggregate them and store in a new table in Cassandra
+g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Robert De Niro'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "count").write.cassandraFormat("de_niro_ratings", "KillrVideo").save
+
+// Spark (ANSI SQL)
+spark.sql("""SELECT * FROM KillrVideo.de_niro_ratings""").show()
+spark.sql("""SELECT * FROM KillrVideo.genre""").show()
+
+// Find actor of the movie Wolf of Wall St, list actor name
+g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").select("person.name").show()
+
+// Returns empty
+g.find("""(movie)-[e]->(person)""").filter("e.src = 'actor' ").show()
+
+
+// Find me all the actors and the movies they appeared
+g.find("(movie)-[e]->(person)").filter("e.`~label` = 'actor'").select("person.name","movie.title").show()
+
+
+g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").filter("e.`~label` = 'actor'").select("person.name").show()
+
+g.find("""(movie)-[e]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").filter("e.`~label` = 'actor'").select("person.name").show()
+
+
+# Combined query
+g.find("""(user)-[rated]->(movie);(movie)-[actor]->(person)""").filter("""person.name = 'Al Pacino' AND actor.`~label` = 'actor' AND rated.`~label` = 'rated'""").select("rated.rating").groupBy("rating").agg(Map("*" -> "count")).withColumnRenamed("count(1)", "al_pacino").join( spark.sql("""SELECT rating, count AS de_niro FROM KillrVideo.de_niro_ratings"""),Seq("rating"), "full_outer").orderBy("rating").show()
+
+.write.cassandraFormat("de_niro_ratings", "KillrVideo").save
+
+# Actors in Romeo + Juliet
+g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'Romeo + Juliet' AND actor.`~label` = 'actor' """).select("person.name").show()
+
+
+g.find("""(movie)-[actor]->(person);(movie1)-[actor1]->(person1)""").filter("""movie.title = 'Titanic' AND movie1.title = 'Romeo + Juliet' AND person.name = person1.name AND actor.`~label` = 'actor' """).select("person.name").show()
+
+
+# Spark read csv 
+val movies = spark.read.option("header", "true").csv("file:///var/lib/graph/movies.csv").withColumn("~label", lit("movie"))
+
+
+
+# Explaing a query, profiles the query of what operations it is made of
+spark.sql("""SELECT * FROM KillrVideo.genre""").show()
+
+g.find("""(movie)-[actor]->(person)""").filter("""movie.title = 'The Wolf of Wall Street'""").select("person.name").explain
+
+
+# PageRank
+val g = spark.dseGraph("KillrVideo")
+g.V().pageRank.show()
+
+# GraphFrame Reserved Column Names
+# GraphFrame uses the following set of columns internally:"id", "src", "dst", "new_id", "new_src", "new_dst", "graphx_attr"TinkerPop properties 
+# with these names will be prepended with "_" when represented inside a GraphFrame/DataFrame.
+ 
+
+
+
+
