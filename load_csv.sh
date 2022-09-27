@@ -21,6 +21,10 @@
 DSBULK_HOME=/home/automaton/dsbulk/dsbulk-1.8.0/
 DSBULK_EXE=$DSBULK_HOME/bin/dsbulk
 
+# Hardcoding to my dev server
+HOST=54.148.138.237
+PORT=9042
+
 # Astra
 #  Dsbulk upload csv
 # /Users/eddy.wong/programs/dsbulk-1.8.0/bin/dsbulk load 
@@ -52,15 +56,15 @@ fi
 
 # Define your dsbwrap function here
 dsbwrap () {
-   echo "$DSBULK_EXE load -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 $9 $10"
-   $DSBULK_EXE load -h 54.148.138.237 -p 9042 -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 -header true
+   echo "$DSBULK_EXE load -h $HOST -p $PORT -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 $9 $10"
+   $DSBULK_EXE load -h $HOST -p $PORT -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 -header true
    return 10
 }
 
 # Define your dsbc_wrapfunction here
 dsbc_wrap () {
-   echo "$DSBULK_EXE load -b $BUNDLE -u $USERNAME -p $PASSWORD $1 $2 $3 $4 $5 $6 $7 $8"
-   echo "$DSBULK_EXE load -b $BUNDLE -u $USERNAME -p $PASSWORD $1 $2 $3 $4 $5 $6 $7 $8"
+   echo "$DSBULK_EXE load -h $HOST -p $PORT -b $BUNDLE -u $USERNAME -p $PASSWORD $1 $2 $3 $4 $5 $6 $7 $8"
+   echo "$DSBULK_EXE load -h $HOST -p $PORT -b $BUNDLE -u $USERNAME -p $PASSWORD $1 $2 $3 $4 $5 $6 $7 $8"
    return 10
 }
 
