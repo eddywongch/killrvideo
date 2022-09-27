@@ -14,7 +14,7 @@
 # load_csv.sh [target graph] 
 #
 # Examples:
-# > load_csv.sh mtb1
+# > load_csv.sh killrvideo
 # 
 # > load_csv.sh
 
@@ -46,14 +46,14 @@ GRAPH=$1
 
 if [ -z "$GRAPH" ]; then
     	#echo "Base dir must be provided"
-	# Setting detault to 'mtb'
+	# Setting detault to 'killrvideo'
 	GRAPH=killrvideo
 fi
 
 # Define your dsbwrap function here
 dsbwrap () {
    echo "$DSBULK_EXE load -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 $9 $10"
-   $DSBULK_EXE load -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 -header true
+   $DSBULK_EXE load -h 54.148.138.237 -p 9042 -g $GRAPH $1 $2 $3 $4 $5 $6 $7 $8 -header true
    return 10
 }
 
