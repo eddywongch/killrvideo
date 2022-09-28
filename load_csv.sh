@@ -22,7 +22,7 @@ DSBULK_HOME=/home/automaton/dsbulk/dsbulk-1.8.0/
 DSBULK_EXE=$DSBULK_HOME/bin/dsbulk
 
 # Hardcoding to my dev server
-HOST=54.148.138.237
+HOST=54.187.156.75
 PORT=9042
 
 # Astra
